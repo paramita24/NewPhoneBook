@@ -18,14 +18,32 @@ namespace PhoneBook.Controllers
         }
 
         // GET: PhoneBook/Details/5
+        //[HttpPost]
+        //public ActionResult Index(string EntryName)
+        //{
+        //    PhoneBookDBHandler dbhandle = new PhoneBookDBHandler();
+        //    ModelState.Clear();
+        //    return View(dbhandle.GetDetailsByName(EntryName));
+        //}
         [HttpPost]
-        public ActionResult Index(string entryname)
+        public ActionResult Index(string rboption,string EntryName, string PhoneNumber)
         {
             PhoneBookDBHandler dbhandle = new PhoneBookDBHandler();
             ModelState.Clear();
-            return View(dbhandle.GetDetailsByName(entryname));
-        }
 
+            if (rboption == "EntryName")
+            {
+                return View(dbhandle.GetDetailsByName(EntryName));
+            }
+            else if (rboption == "PhoneNumber")
+            {
+                return View(dbhandle.GetDetailsByPhoneNumber(PhoneNumber));
+            }
+            else
+            {
+                return View(dbhandle.GetDetails());
+            }
+        }
         // GET: PhoneBook/Create
         public ActionResult Create()
         {
@@ -38,15 +56,26 @@ namespace PhoneBook.Controllers
         {
             try
             {
-                if (ModelState.IsValid)
+                PhoneBookDBHandler pndb = new PhoneBookDBHandler();
+                ModelState.Clear();
+                if (pndb.GetDetailsByPhoneNumber(phonebookmodel.PhoneNumber).Count() != 0)
                 {
-                    PhoneBookDBHandler pndb = new PhoneBookDBHandler();
-                    if (pndb.AddPhoneBookEntry(phonebookmodel))
+                    TempData["Error"] = "Phone number is already available";
+                }
+                else
+                {
+                    if (ModelState.IsValid)
                     {
-                        ViewBag.Message = "Phone Book Details Added Successfully";
-                        ModelState.Clear();
+
+                        if (pndb.AddPhoneBookEntry(phonebookmodel))
+                        {
+                            TempData["Success"] = "Phone Book Details Added Successfully";
+                            ModelState.Clear();
+                        }
+
                     }
                 }
+
                 return View();
             }
             catch

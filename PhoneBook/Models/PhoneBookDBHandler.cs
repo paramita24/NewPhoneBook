@@ -88,5 +88,31 @@ namespace PhoneBook.Models
             }
             return phonebooklist;
         }
+        public List<PhoneBookModel> GetDetailsByPhoneNumber(string phonenumber)
+        {
+            connection();
+            List<PhoneBookModel> phonebooklist = new List<PhoneBookModel>();
+
+            SqlCommand cmd = new SqlCommand("GetDetailsByPhoneNumber", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@PhoneNumber", phonenumber);
+            SqlDataAdapter pbd = new SqlDataAdapter(cmd);
+            DataTable dt = new DataTable();
+
+            con.Open();
+            pbd.Fill(dt);
+            con.Close();
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                phonebooklist.Add(
+                    new PhoneBookModel
+                    {
+                        EntryName = Convert.ToString(dr["EntryName"]),
+                        PhoneNumber = Convert.ToString(dr["PhoneNumber"])
+                    });
+            }
+            return phonebooklist;
+        }
     }
 }
